@@ -57,12 +57,11 @@ There are lots of different types of automated testing, but they mostly break do
 ### ☝ Remember: Don't Just Test the Golden Path
 It's easy to just write tests covering the expected use cases, but where the bugs tend to rear their ugly heads in when you wander off the golden path. And sometimes users will use the software in ways that were completely unanticipated but that, in retrospect, make total sense. [This tweet](https://twitter.com/brenankeller/status/1068615953989087232) sums it up well:
 
-    Brenan Keller
-    @brenankeller
-    
-    A QA engineer walks into a bar. Orders a beer. Orders 0 beers. Orders 99999999999 beers. Orders a lizard. Orders -1 beers. Orders a ueicbksjdhd.
-
-    First real customer walks in and asks where the bathroom is. The bar bursts into flames, killing everyone.
+> Brenan Keller (@brenankeller)
+> 
+> A QA engineer walks into a bar. Orders a beer. Orders 0 beers. Orders 99999999999 beers. Orders a lizard. Orders -1 beers. Orders a ueicbksjdhd.
+>
+> First real customer walks in and asks where the bathroom is. The bar bursts into flames, killing everyone.
 
 ## Installing Jest
 In this training session, we're going to get familiar with Jest, an automated testing framework for JavaScript. To get started, clone this project to your machine and install dependencies:

@@ -1,0 +1,20 @@
+{
+  "name": "jestify",
+  "version": "1.0.0",
+  "description": "Demo project to Jest-ify",
+  "main": "./src/index.js",
+  "dependencies": {
+    "node-fetch": "^2.6.0"
+  },
+  "devDependencies": {},
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/rjwut/jestify.git"
+  },
+  "author": "Robert J. Walker (https://github.com/rjwut)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/rjwut/jestify/issues/new"
+  },
+  "homepage": "https://github.com/rjwut/jestify#readme"
+}

@@ -104,7 +104,7 @@ We will first unit test the `isPalindrome()` function. The word "racecar" is a p
 
 1. Create a file in the `/src` directory called `index.test.js`. (Files ending with `.test.js` are automatically recognized as containing tests.)
 
-2. `require()` the module being tested:
+2. `require()` the module being tested and extract the `isPalindrome()` function:
 
    ```js
    const { isPalindrome } = require('.');
@@ -131,7 +131,7 @@ We will first unit test the `isPalindrome()` function. The word "racecar" is a p
 The `index.test.js` file should now look like this:
 
 ```js
-const util = require('.');
+const { isPalindrome } = require('.');
 
 test('"racecar" is a palindrome', () => {
   expect(isPalindrome('racecar')).toBe(true);
@@ -392,7 +392,7 @@ describe('greet()', () => {
 
 The `greet()` function would throw an error if `callback` were not a function, so we know that `jest.fn()` did return a mock function for us. However, we have no idea yet whether the function actually got called and what it may have been passed. Fortunately, the mock function tracks information about each time it is invoked, and this information can be retrieved afterward via the `mock` property of the mock function.
 
-The object stored in the function's `mock` property contains several properties of its own, but the one we're interested in here is `calls`, which is an array which contains one element for each time the mock function was invoked. Each element is an array containing the arguments that were passed to the function. We can use this information to assert that our mock function is called with the appropriate arguments, like this:
+The object stored in the function's `mock` property contains several properties of its own, but the one we're interested in here is `calls`, which is an array which contains one element for each time the mock function was invoked. Each element is an array containing the arguments that were passed to the function. We can use this information to assert that our mock function is called with the appropriate arguments. Insert this code at the end of the test, right after the call to `greet()`:
 
 ```js
 expect(callback.mock.calls).toEqual([
@@ -400,7 +400,7 @@ expect(callback.mock.calls).toEqual([
 ]);
 ```
 
-Notice that we're using `toEqual()` instead of `toBe()`. Remember that `toBe()` performs a strict equality check, but we don't want it to be the same array. We want it to be an array that _looks_ the same as the one we specify. That's what `toEqual()` does, and it makes it much easier to test complex values.
+Notice that we're using `toEqual()` instead of `toBe()`. Remember that `toBe()` checks referential equality, but we don't want it to be the same array. We want it to be an array that _looks_ the same as the one we specify. That's what `toEqual()` does, and it makes it much easier to test complex values.
 
 The test code above expects that the mock function will have been invoked exactly once, with `undefined` as the first argument (the error) and `'Hello, world!'` as the second argument (the greeting). When we run our tests, we find that this test passes, proving that the callback was invoked with the expected arguments.
 
@@ -455,7 +455,7 @@ test('Test delayed callback', done => {
 Note that if `done()` never gets called, the test will wait until it times out (five seconds by default), then fail with a timeout error. If an error occurs, you can trap it and pass it into `done()` to end the test and display the error. You can also adjust the timeout by passing a third argument into `test()`, giving the timeout duration in milliseconds.
 
 ### `Promise`s
-Our module has a `Promise`-based implementation of `greet()` called `greetPromise()`. Testing `Promise`-based code is easier than working with callbacks. If your executor function returns a `Promise`, Jest will realize that you're testing asynchronous code and wait until the `Promise` settles before ending the test. Let's use this mechanism to write a test for `greetPromise()`.
+Our module has a `Promise`-based implementation of `greet()` called `greetPromise()`. Testing `Promise`-based code is easier than working with callbacks. If your executor function returns a `Promise`, Jest will realize that you're testing asynchronous code and wait until the `Promise` settles before ending the test. As normal, the test fails if any assertions fail, but it will also fail if the `Promise` rejects with no assertions executed. Let's use this mechanism to write a test for `greetPromise()`.
 
 First we need to expose the `greetPromise()` function in the first line of our test file:
 
@@ -475,7 +475,7 @@ describe('greetPromise()', () => {
 });
 ```
 
-That wasn't so bad! Now let's write a test to make sure that `greetPromise()` rejects if you pass it an empty name. Normally, Jest will pass the test if the `Promise` resolves. However, we want the test to _fail_ if it resolves. To handle this, we will tell Jest how many assertions we plan to make by using the `expect.assertions()` function. If the `Promise` settles and the number of assertions made doesn't match, the test will fail:
+That wasn't so bad! Now let's write a test to make sure that `greetPromise()` rejects if you pass it an empty name. There's a small detail to consider, though: if the `Promise` resolves without any assertions being executed, the test normally passes, but in this case we'd want it to _fail_. To handle this, we will tell Jest how many assertions we plan to make by using the `expect.assertions()` function. If the `Promise` settles and the number of assertions made doesn't match, the test will fail:
 
 ```js
 test('Passing in a blank name rejects', () => {
@@ -574,7 +574,7 @@ const DATA = {
       localName: 'Independence Day',
     },
   ],
-}
+};
 ```
 
 That's it! If we save and run our test, it passes, even if we're disconnected from the network. 🎉
@@ -597,7 +597,7 @@ Run the tests again and you'll see a coverage report after the test results, whi
 File      | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
 ----------|---------|----------|---------|---------|-------------------
 All files |   94.87 |    71.43 |     100 |   94.44 |
- index.js |   94.87 |    71.43 |     100 |   94.44 | 48,68
+ index.js |   94.87 |    71.43 |     100 |   94.44 | 31,98
 ----------|---------|----------|---------|---------|-------------------
 ```
 

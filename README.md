@@ -1,15 +1,23 @@
 # 🃏 Jest Training
 
 ## Overview
-
-### What This Project Is
-This is a "sandbox" project to accompany my training session on learning to use the [Jest automated testing framework](https://jestjs.io/). It consists of a simple JavaScript module which contains no automated tests. You are going to write automated tests for the functions exported by this module. You can do the training by following the instructions in this file, even if you aren't able to attend the training.
-
-### What This Project Is Not
-This is not an attempt to create complete documentation of Jest functionality. For that, refer to the official Jest [documentation](https://jestjs.io/docs/en/getting-started) and [API reference](https://jestjs.io/docs/en/api).
+This is a "sandbox" project to accompany my training session on learning to use the [Jest automated testing framework](https://jestjs.io/). It consists of a simple JavaScript module which contains no automated tests. If you are not able to attend my live training session, you can still participate by following the instructions in this file.
 
 ### Assumptions
 This training session does not require any previous experience with Jest, or even automated testing. However, it does assume that you are familiar with [arrow functions](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Functions/Arrow_functions) and (for one small part) [destructuring assignments](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Operators/Destructuring_assignment). The section about testing asynchronous functions assumes that you are familiar with asynchronous JavaScript programming concepts, including [`Promise`s](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Using_promises) and [`async`/`await`](https://developer.mozilla.org/en-US/docs/Learn/JavaScript/Asynchronous/Async_await).
+
+### Setup
+> 💡 If you are attending my live training session, please do this step beforehand.
+
+To get started, you will need to clone the repository on your local machine and install dependencies:
+
+```
+git clone https://github.com/rjwut/jestify.git
+
+npm install
+```
+
+Jest has already been defined in the project as a dev dependency, so it will be ready to go after you run `npm install`.
 
 ## 🛠 Why and How to Do Test-Driven Development
 
@@ -61,48 +69,20 @@ There are lots of different types of automated testing, but they mostly break do
 - Limit them to maybe 10% of your tests, focused on the most important interactions
 
 ### ☝ Remember: Don't Just Test the Golden Path
-It's easy to just write tests covering the expected use cases, but where the bugs tend to rear their ugly heads is when you wander off the golden path. And sometimes users will use the software in ways that were completely unanticipated but that, in retrospect, make total sense. [This tweet](https://twitter.com/brenankeller/status/1068615953989087232) sums it up well:
-
-> Brenan Keller (@brenankeller)
+> [Brenan Keller (@brenankeller)](https://twitter.com/brenankeller/status/1068615953989087232)
 > 
 > A QA engineer walks into a bar. Orders a beer. Orders 0 beers. Orders 99999999999 beers. Orders a lizard. Orders -1 beers. Orders a ueicbksjdhd.
 >
 > First real customer walks in and asks where the bathroom is. The bar bursts into flames, killing everyone.
 
-## Installing Jest
-In this training session, we're going to get familiar with Jest, an automated testing framework for JavaScript. To get started, clone this project to your machine:
+It's easy to just write tests covering the expected use cases, but where the bugs tend to rear their ugly heads is when you wander off the golden path. And sometimes users will use the software in ways that were completely unanticipated but that, in retrospect, make total sense. Keep this in mind as you write tests.
 
-```
-git clone https://github.com/rjwut/jestify.git
-```
+## Getting Started with Jest
+In this training session, we're going to get familiar with Jest, an automated testing framework for JavaScript. I've included a script in `package.json` that will run Jest using the `npm test` command.
 
-Once the project is cloned, install dependencies:
+> 💡 If you're using [Visual Studio Code](https://code.visualstudio.com/), the [Jest extension](https://marketplace.visualstudio.com/items?itemName=Orta.vscode-jest) will automagically run your tests whenver you save. You can then click on the Jest badge on the status line to view the test run output.
 
-```
-npm install
-```
-
-The project currently has no automated testing at all. Let's start by installing Jest:
-
-```
-npm install --save-dev jest
-```
-
-Now open `package.json` and add a new script to run the tests:
-
-```
-"scripts": {
-  "test": "jest ./src"
-}
-```
-
-Let's check this by doing a test run now:
-
-```
-npm test
-```
-
-You'll get an error that includes this message:
+If you view the test results now, you'll get an error that includes this message:
 
 ```
 No tests found, exiting with code 1
@@ -110,10 +90,22 @@ No tests found, exiting with code 1
 
 The test run failed because we don't have any tests yet. As mentioned earlier, good test-driven development practice indicates that we should write our tests first, then code until the tests pass. However, we all know that we will often inherit code that doesn't have tests or has inadequate test coverage, so writing tests for existing code is something that we will still end up doing. This is the scenario for our "sandbox" project: we've got code with no tests, and we want to add them. Let's start that now.
 
+> 💡 Links to reference documentation will be included as concepts are introduced.
+
 ## Your First Jest Test
+> 📗 Documentation:
+> - [`test()`](https://jestjs.io/docs/en/api#testname-fn-timeout)
+> - [`expect()` and supported matchers](https://jestjs.io/docs/en/expect)
+
 We will first unit test the `isPalindrome()` function. The word "racecar" is a palindrome. Let's write a simple test that calls `isPalindrome()`, passes in `'racecar'`, and confirms that it returns `true`.
 
-1. Create a file in the `/src` directory called `index.test.js`. (Files ending with `.test.js` are automatically recognized as containing tests.)
+1. Create a file in the `/src` directory called `index.test.js`.
+
+   > 💡 By default, a JavaScript or TypeScript file (`*.js[x]`, `*.ts[x]`) will be considered a test file if:
+   > - the extension is prefixed with `test` or `spec` (e.g.: `test.js` or `component.spec.js`), or
+   > - it is located under a `__tests__` directory.
+   >
+   > [This is configurable.](https://jestjs.io/docs/en/configuration#testmatch-arraystring)
 
 2. `require()` the module being tested and destructure the `isPalindrome()` function:
 
@@ -129,7 +121,9 @@ We will first unit test the `isPalindrome()` function. The word "racecar" is a p
    });
    ```
 
-   The first argument a human-friendly description of the test. The second is an executor function which runs the test. Note that you don't have to `require()` any modules from Jest itself in order to do this. Jest functions are automatically exposed globally within `.test.js` files.
+   The first argument a human-friendly description of the test. The second is an executor function which runs the test. Note that you don't have to `require()` any modules from Jest itself in order to do this. Jest functions are automatically exposed globally within test files.
+
+   > 💡 You may also see the alias `it()` used instead of `test()`.
 
 4. Write the implementation of the test inside the executor function:
 
@@ -149,17 +143,11 @@ test('"racecar" is a palindrome', () => {
 });
 ```
 
-Now try running it with `npm test`:
+Now try running it:
 
 ```
  PASS  src/index.test.js
   √ "racecar" is a palindrome (2 ms)
-
-Test Suites: 1 passed, 1 total
-Tests:       1 passed, 1 total
-Snapshots:   0 total
-Time:        1.657 s
-Ran all test suites matching /.\\src/i.
 ```
 
 Great, our test passed! Let's do another test, this time passing in a word that is not a palindrome and ensuring that `isPalindrome()` returns `false`. Add the following code right after the first test:
@@ -170,7 +158,7 @@ test('"foo" is not a palindrome', () => {
 });
 ```
 
-Run the test again. Here are the results (leaving out the summary at the bottom this time):
+Run the test again. Here are the results:
 
 ```
 PASS  src/index.test.js
@@ -181,6 +169,8 @@ PASS  src/index.test.js
 Both our tests pass, as expected.
 
 ## Parameterized Tests
+> 📗 [Documentation: `test.each()`](https://jestjs.io/docs/en/api#testeachtablename-fn-timeout)
+
 We could add more strings to test, but we don't want to write the same code over and over. This is where `test.each()` comes in: It allows you to specify an array of input values and run the same test for all of them. Let's change our first test to use `test.each()`:
 
 ```js
@@ -234,6 +224,8 @@ PASS  src/index.test.js
 Awesome! 🤘 All our tests pass!
 
 ## Grouping Tests
+> 📗 [Documentation: `describe()`](https://jestjs.io/docs/en/api#describename-fn)
+
 It is often helpful to group similar tests together; for example, when you perform multiple tests on the same function. This is a job for Jest's `describe()` function. It works like this:
 
 ```js
@@ -263,6 +255,8 @@ PASS  src/index.test.js
 You can see that the tests have now been put under an `isPalindrome()` group in the report, making it easy to see that they go together. Right now it doesn't matter that much, because we only have one group. As we add more tests, grouping them this way makes the report more readable, and you can even next `describe()`s if you need to.
 
 ## Dealing With Errors
+> 📗 [Documentation: `toThrow()`](https://jestjs.io/docs/en/expect#tothrowerror)
+
 
 ### Passing When an Error is Thrown
 As we mentioned earlier, we don't just want to test the golden path. We should also make sure that `isPalindrome()` throws an error when given invalid input. We can do this using the `toThrow()` matcher:
@@ -310,7 +304,7 @@ test.each([
   Symbol('foo'),
   1n,
 ])('%p throws', val => {
-  expect(val => util.isPalindrome(val)).toThrow();
+  expect(val => isPalindrome(val)).toThrow();
 });
 ```
 
@@ -380,6 +374,8 @@ module.exports.isPalindrome = str => {
 Running the tests again shows that they all pass now!
 
 ## Mocking Functions
+> 📗 [Documentation: Mock Functions](https://jestjs.io/docs/en/mock-function-api)
+
 The module we're testing has another function called `greet()`. It invokes a callback function with a greeting for the named person. This callback mechanism was very common before `Promise`s became a thing, and are still common in event listening. Traditionally, the first argument of a callback function will be any error that may have occurred. If no error occurred, the remaining arguments will be any data that the function wants to pass along to the callback.
 
 In order to test that your callback function got invoked as expected, you could write one that would record whether it got invoked and what arguments were passed to it. There's no need to do so, however, because Jest has that functionality built in!
@@ -422,6 +418,8 @@ The test code above expects that the mock function will have been invoked exactl
 ## Testing Asynchronous Code
 
 ### Callbacks
+> 📗 [Documentation: Callbacks](https://jestjs.io/docs/en/asynchronous#callbacks)
+
 By default, our `greet()` function invokes the callback function immediately. However, it has an optional third argument which causes it to asynchronously delay the invocation of the callback. Let's write a separate test case for that:
 
 ```js
@@ -470,6 +468,8 @@ test('Test delayed callback', done => {
 Note that if `done()` never gets called, the test will wait until it times out (five seconds by default), then fail with a timeout error. If an error occurs, you can trap it and pass it into `done()` to end the test and display the error. You can also adjust the timeout by passing a third argument into `test()`, giving the timeout duration in milliseconds.
 
 ### `Promise`s
+> 📗 [Documentation: `Promise`s](https://jestjs.io/docs/en/asynchronous#promises)
+
 Our module has a `Promise`-based implementation of `greet()` called `greetPromise()`. Testing `Promise`-based code is easier than working with callbacks. If your executor function returns a `Promise`, Jest will realize that you're testing asynchronous code and wait until the `Promise` settles before ending the test. As normal, the test fails if any assertions fail, but it will also fail if the `Promise` rejects with no assertions executed. Let's use this mechanism to write a test for `greetPromise()`.
 
 First we need to expose the `greetPromise()` function in the first line of our test file:
@@ -503,6 +503,9 @@ test('Passing in a blank name rejects', () => {
 
 In this test, if the `Promise` resolves, the `catch()` function is never invoked, and so the assertion contained in it is never executed. Jest will notice that no assertions were made, and so will fail the test.
 
+### `.resolves`/`.rejects`
+> 📗 [Documentation: `.resolves`/`.rejects`](https://jestjs.io/docs/en/asynchronous#resolves--rejects)
+
 Another way to handle this situation is to use the `resolves` and `rejects` matchers. This avoids the need to use `expect.assertions()`. Let's rewrite our tests to use these matchers:
 
 ```js
@@ -515,6 +518,9 @@ test('Passing in a blank name rejects', () => {
 ```
 
 Super easy! Don't forget to return the result from the executor function so that Jest will know to wait for the `Promise` to settle.
+
+### `async`/`await`
+> 📗 [Documentation: `async`/`await`](https://jestjs.io/docs/en/asynchronous#asyncawait)
 
 If you prefer to use `async`/`await` syntax, you can do that, too. Let's rewrite our tests to use that:
 
@@ -532,6 +538,8 @@ All you have to do is change the executor functions to be `async`, and then `awa
 You can mix and match these three methods of working with `Promise`s and use whichever one is most convenient in your circumstance.
 
 ## Mocking Modules
+> 📗 [Documentation: Mocking Modules](https://jestjs.io/docs)
+
 The last function in our module is `holiday()`. This function accepts a country code and an optional date, and returns an array containing the names of any federal holidays that fall on that date (or today if no date is specified). Given what we know now about testing asynchronous functions, it's easy enough to write a test for that:
 
 ```js
@@ -594,14 +602,15 @@ const DATA = {
 
 That's it! If we save and run our test, it passes, even if we're disconnected from the network. 🎉
 
-There are some important details to undestand about mocking modules:
-
-- Jest automatically provides your mocks for third-party modules when they are required by your test code or the code you are testing.
-- Modules which are internal to your application can also be mocked. In the directory where the module is located, create a `__mocks__` directory, then create the mock module in that directory with the same name. This will automatically mock the module when `require()`d by the code being tested, but it is _not_ automatically mocked when `require()`d by the test code itself. To do that, you will need to explicitly ask Jest for the mock using `jest.mock()` instead.
-- Core Node modules such as `fs` are not mocked by default. If your test code wants a mock of a core Node module, you can obtain it with `jest.mock()`.
-- If your test code has a mocked module and needs to get at the real one, it can do so with `jest.requireActual()`.
+> 💡 There are some important details to undestand about mocking modules:
+> - Jest automatically provides your mocks for third-party modules when they are required by your test code or the code you are testing.
+> - Modules which are internal to your application can also be mocked. In the directory where the module is located, create a `__mocks__` directory, then create the mock module in that directory with the same name. This will automatically mock the module when `require()`d by the code being tested, but it is _not_ automatically mocked when `require()`d by the test code itself. To do that, you will need to explicitly ask Jest for the mock using [`jest.mock()`](https://jestjs.io/docs/en/jest-object#jestmockmodulename-factory-options) instead.
+> - Core Node modules such as `fs` are not mocked by default. If your test code wants a mock of a core Node module, you can obtain it with `jest.mock()`.
+> - If your test code has a mocked module and needs to get at the real one, it can do so with [`jest.requireActual()`](https://jestjs.io/docs/en/jest-object#jestrequireactualmodulename).
 
 ## Coverage
+> 📗 [Documentation: `--coverage`](https://jestjs.io/docs/en/cli#--coverageboolean)
+
 Jest comes with built-in coverage reporting. Let's turn that on in our `test` script by adding `--coverage` to the end of the command in `package.json`:
 
 ```
@@ -626,8 +635,9 @@ This command will also export the coverage report into the `/coverage` directory
 ## I Want More!
 There is far more to Jest than can be covered in one training session. The [official Jest documentation](https://jestjs.io/docs/en/getting-started) contains everything you'd ever want to know about Jest. Some topics that might be of particular interest include:
 
-- Setup and teardown functions
-- Mocking ECMAScript 6 classes
-- Mocking the browser DOM
-- Testing Express routes
-- Testing React, Vue, and Angular apps
+- [Setup and teardown functions](https://jestjs.io/docs/en/setup-teardown)
+- [Writing custom matchers](https://jestjs.io/docs/en/expect#expectextendmatchers)
+- [Mocking ECMAScript 6 classes](https://jestjs.io/docs/en/es6-class-mocks)
+- [Mocking the browser DOM](https://jestjs.io/docs/en/tutorial-jquery)
+- [Testing Express routes](https://www.albertgao.xyz/2017/05/24/how-to-test-expressjs-with-jest-and-supertest/)
+- Testing [React](https://jestjs.io/docs/en/tutorial-react), [Vue](https://jestjs.io/docs/en/testing-frameworks#vuejs), and [Angular](https://www.xfive.co/blog/testing-angular-faster-jest/) apps

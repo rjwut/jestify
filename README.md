@@ -69,11 +69,11 @@ There are lots of different types of automated testing, but they mostly break do
 - Limit them to maybe 10% of your tests, focused on the most important interactions
 
 ### ☝ Remember: Don't Just Test the Golden Path
-> [Brenan Keller (@brenankeller)](https://twitter.com/brenankeller/status/1068615953989087232)
-> 
 > A QA engineer walks into a bar. Orders a beer. Orders 0 beers. Orders 99999999999 beers. Orders a lizard. Orders -1 beers. Orders a ueicbksjdhd.
 >
 > First real customer walks in and asks where the bathroom is. The bar bursts into flames, killing everyone.
+>
+> — [Brenan Keller (@brenankeller)](https://twitter.com/brenankeller) - [November 30, 2018](https://twitter.com/brenankeller/status/1068615953989087232)
 
 It's easy to just write tests covering the expected use cases, but where the bugs tend to rear their ugly heads is when you wander off the golden path. And sometimes users will use the software in ways that were completely unanticipated but that, in retrospect, make total sense. Keep this in mind as you write tests.
 

@@ -411,7 +411,7 @@ expect(callback.mock.calls).toEqual([
 ]);
 ```
 
-Notice that we're using `toEqual()` instead of `toBe()`. When comparin objects or arrays, the `toBe()` matcher checks for referential equality, but we aren't trying to assert that the expected and actual values are the same array. We want the actual array to _look_ the same as the one we specify. That's what `toEqual()` does, and it makes it much easier to test complex values for deep equality.
+Notice that we're using `toEqual()` instead of `toBe()`. When comparing objects or arrays, the `toBe()` matcher checks for referential equality, but we aren't trying to assert that the expected and actual values are the same array. We want the actual array to _look_ the same as the one we specify. That's what `toEqual()` does, and it makes it much easier to test complex values for deep equality.
 
 The test code above expects that the mock function will have been invoked exactly once, with `undefined` as the first argument (the error) and `'Hello, world!'` as the second argument (the greeting). When we run our tests, we find that this test passes, proving that the callback was invoked with the expected arguments.
 
@@ -561,7 +561,7 @@ First, let's create a structure that will hold our mock data. For now, we'll cre
 const DATA = {};
 ```
 
-The `node-fetch` module exports a function. To do a `GET` request, we can simply pass the URL to this function, and an object representing the response is returned asynchronously. We then call the `json()` asynchronous method on that reponse object to retrieve the data. We don't need to mock the entire API, just these parts that we're using.
+The `node-fetch` module exports a function. To do a `GET` request, we can simply pass the URL to this function, and an object representing the response is returned asynchronously. We then call the `json()` asynchronous method on that response object to retrieve the data. We don't need to mock the entire API, just these parts that we're using.
 
 ```js
 module.exports = jest.fn(async url => ({
@@ -602,7 +602,7 @@ const DATA = {
 
 That's it! If we save and run our test, it passes, even if we're disconnected from the network. 🎉
 
-> 💡 There are some important details to undestand about mocking modules:
+> 💡 There are some important details to understand about mocking modules:
 > - Jest automatically provides your mocks for third-party modules when they are required by your test code or the code you are testing.
 > - Modules which are internal to your application can also be mocked. In the directory where the module is located, create a `__mocks__` directory, then create the mock module in that directory with the same name. This will automatically mock the module when `require()`d by the code being tested, but it is _not_ automatically mocked when `require()`d by the test code itself. To do that, you will need to explicitly ask Jest for the mock using [`jest.mock()`](https://jestjs.io/docs/en/jest-object#jestmockmodulename-factory-options) instead.
 > - Core Node modules such as `fs` are not mocked by default. If your test code wants a mock of a core Node module, you can obtain it with `jest.mock()`.

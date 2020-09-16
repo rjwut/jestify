@@ -376,7 +376,7 @@ Running the tests again shows that they all pass now!
 ## Mocking Functions
 > 📗 [Documentation: Mock Functions](https://jestjs.io/docs/en/mock-function-api)
 
-The module we're testing has another function called `greet()`. It invokes a callback function with a greeting for the named person. This callback mechanism was very common before `Promise`s became a thing, and are still common in event listening. Traditionally, the first argument of a callback function will be any error that may have occurred. If no error occurred, the remaining arguments will be any data that the function wants to pass along to the callback.
+The module we're testing has another function called `greet()`. It invokes a callback function with a greeting for the named person. This callback mechanism was very common before `Promise`s became a thing, and are still common in event listening. Traditionally, the first argument of a callback function will be any error that may have occurred. If no error occurred, the remaining arguments will be any data that the function wants to pass along to the callback. The `greet()` function is synchronous; later we'll learn about testing asynchronous functions.
 
 In order to test that your callback function got invoked as expected, you could write one that would record whether it got invoked and what arguments were passed to it. There's no need to do so, however, because Jest has that functionality built in!
 
@@ -420,22 +420,28 @@ The test code above expects that the mock function will have been invoked exactl
 ### Callbacks
 > 📗 [Documentation: Callbacks](https://jestjs.io/docs/en/asynchronous#callbacks)
 
-By default, our `greet()` function invokes the callback function immediately. However, it has an optional third argument which causes it to asynchronously delay the invocation of the callback. Let's write a separate test case for that:
+The `greetTimeout()` function in our module is just like `greet()`, except that it accepts a third argument: a delay time before the callback will be invoked. This is an example of an _asynchronous function_. When you invoke the function, instead of blocking until the task is done, it returns immediately, with the task scheduled to happen later. Your code gets notified of the results of the task via the callback function. Let's write a test for this function. First, we need to expose `greetTimeout()`:
 
 ```js
-test('Test delayed callback', () => {
-  const callback = jest.fn();
-  greet('world', callback, 100);
-  expect(callback.mock.calls).toEqual([
-    [ undefined, 'Hello, world!']
-  ]);
+const { isPalindrome, greet, greetTimeout } = require('.');
+```
+
+```js
+describe('greetTimeout()', () => {
+  test('Passing in "world" invokes the callback with "Hello, world!"', () => {
+    const callback = jest.fn();
+    greetTimeout('world', callback, 100);
+    expect(callback.mock.calls).toEqual([
+      [ undefined, 'Hello, world!']
+    ]);
+  });
 });
 ```
 
 Uh, oh! 😱 Our test fails:
 
 ```
-● greet() › Test delayed callback
+● greetTimeout() › Test delayed callback
 
   expect(received).toEqual(expected) // deep equality
 
@@ -451,17 +457,19 @@ Uh, oh! 😱 Our test fails:
   + Array []
 ```
 
-The test failure shows a diff between the expected and actual values. We expected our mock callback function to have been invoked, but `mock.calls` comes back empty. The problem is that because `greet()` is asynchronous, the function returns immediately, and our test prematurely, before the callback has been invoked.
+The test failure shows a diff between the expected and actual values. We expected our mock callback function to have been invoked, but `mock.calls` comes back empty. The problem is that because `greetTimeout()` is asynchronous, the function returns immediately. This ends our test prematurely, before the callback has been invoked.
 
 Fortunately, Jest provides a nice workaround for this problem. The executor function can accept an function argument, usually called `done`. If you declare this argument, Jest will wait until you invoke that function before considering the test executor to be complete. Instead of using a mock callback, let's create a callback that will invoke `done()` for us:
 
 ```js
-test('Test delayed callback', done => {
-  greet('world', (error, greeting) => {
-    expect(error).toBe(undefined);
-    expect(greeting).toBe('Hello, world!');
-    done();
-  }, 100);
+describe('greetTimeout()', () => {
+  test('Passing in "world" invokes the callback with "Hello, world!"', done => {
+    greetTimeout('world', (error, greeting) => {
+      expect(error).toBe(undefined);
+      expect(greeting).toBe('Hello, world!');
+      done();
+    }, 100);
+  });
 });
 ```
 
@@ -475,7 +483,7 @@ Our module has a `Promise`-based implementation of `greet()` called `greetPromis
 First we need to expose the `greetPromise()` function in the first line of our test file:
 
 ```js
-const { isPalindrome, greet, greetPromise } = require('.');
+const { isPalindrome, greet, greetTimeout, greetPromise } = require('.');
 ```
 
 Now let's create a new `describe()` and write our test in it:
@@ -490,7 +498,7 @@ describe('greetPromise()', () => {
 });
 ```
 
-That wasn't so bad! Now let's write a test to make sure that `greetPromise()` rejects if you pass it an empty name. There's a small detail to consider, though: if the `Promise` resolves without any assertions being executed, the test normally passes, but in this case we'd want it to _fail_. To handle this, we will tell Jest how many assertions we plan to make by using the `expect.assertions()` function. If the `Promise` settles and the number of assertions made doesn't match, the test will fail:
+That wasn't so bad! Now let's write a test to make sure that `greetPromise()` rejects if you pass it an empty name. There's a small detail to consider, though: if the `Promise` resolves without any assertions being executed, the test normally passes, but in this case we'd want it to _fail_ if the `Promise` resolves. To handle this, we will tell Jest how many assertions we plan to make by using the `expect.assertions()` function. If the `Promise` settles and the number of assertions made doesn't match, the test will fail:
 
 ```js
 test('Passing in a blank name rejects', () => {
@@ -522,7 +530,7 @@ Super easy! Don't forget to return the result from the executor function so that
 ### `async`/`await`
 > 📗 [Documentation: `async`/`await`](https://jestjs.io/docs/en/asynchronous#asyncawait)
 
-If you prefer to use `async`/`await` syntax, you can do that, too. Let's rewrite our tests to use that:
+If you prefer to use `async`/`await` syntax, you can do that, too. Let's rewrite our tests to use it:
 
 ```js
 test('Passing in "world" resolves to "Hello, world!"', async () => {
@@ -540,7 +548,13 @@ You can mix and match these three methods of working with `Promise`s and use whi
 ## Mocking Modules
 > 📗 [Documentation: Mocking Modules](https://jestjs.io/docs)
 
-The last function in our module is `holiday()`. This function accepts a country code and an optional date, and returns an array containing the names of any federal holidays that fall on that date (or today if no date is specified). Given what we know now about testing asynchronous functions, it's easy enough to write a test for that:
+The last function in our module is `holiday()`. This function accepts a country code and an optional date, and returns an array containing the names of any federal holidays that fall on that date. Let's expose the `holiday()` function:
+
+```js
+const { isPalindrome, greet, greetTimeout, greetPromise, holiday } = require('.');
+```
+
+Now we write the test. Given what we know now about testing asynchronous functions, it's easy enough:
 
 ```js
 describe('holiday()', () => {
@@ -553,15 +567,15 @@ describe('holiday()', () => {
 
 There's a problem, however: `holiday()` depends on a remote web service. We don't want to be spamming their API when we're running our tests, and our test could fail if the service is down or is being really slow.
 
-The code uses a third-party module called `node-fetch` to make the web service request. What we're going to do is mock that module, so that when we make a request we aren't actually hitting the real web service. In the root of our project, create a new directory called `__mocks__` (that's two underscores on each side). Inside this directory, create a new file named `node-fetch.js`.
+The code uses a third-party module called `node-fetch` to make the web service request. What we're going to do is mock that module, so that when we make a request we aren't actually hitting the real web service. In the root of our project, create a new directory called `__mocks__` (that's two underscores on each side). Inside this directory, create a new file named `node-fetch.js`. This will be our mock version of the `node-fetch` module. When Jest runs our tests, it intercepts the `require()` function and checks the `__mocks__` directory to see if we have a mock for that module. If so, the mock module is returned instead of the real one.
 
-First, let's create a structure that will hold our mock data. For now, we'll create an empty object called `DATA`:
+Let's implement our mock module. First, we'll create a structure that will hold our mock data. For now, we'll create an empty object called `DATA`:
 
 ```js
 const DATA = {};
 ```
 
-The `node-fetch` module exports a function. To do a `GET` request, we can simply pass the URL to this function, and an object representing the response is returned asynchronously. We then call the `json()` asynchronous method on that response object to retrieve the data. We don't need to mock the entire API, just these parts that we're using.
+The `node-fetch` module exports a function. To do a `GET` request, we can simply pass the URL to this function, and an object representing the response is returned asynchronously. We then call the `json()` asynchronous method on that response object to retrieve the data. We don't need to mock the entire API, just these parts that we're using:
 
 ```js
 module.exports = jest.fn(async url => ({
@@ -581,7 +595,7 @@ module.exports = jest.fn(async url => ({
 }));
 ```
 
-If we save and run our tests, we'll find that the `holiday()` test fails. We can tell that it's using our mock rather than the actual `node-fetch` module!
+Now that the API is mocked, if we save and run our tests, we'll find that the `holiday()` test fails. We can tell that it's using our mock rather than the actual `node-fetch` module!
 
 Now let's create some mock data so that our test will pass. Note that we're not mocking the entire response; just the parts we're interested in, which are the `date` and `localName` properties. Let's put in the holiday we're looking for (New Year's Day) and one we aren't (Independence Day) to make sure it gets filtered out. Create a `'2020/US'` property on `DATA` so that it looks like this:
 
@@ -604,7 +618,7 @@ That's it! If we save and run our test, it passes, even if we're disconnected fr
 
 > 💡 There are some important details to understand about mocking modules:
 > - Jest automatically provides your mocks for third-party modules when they are required by your test code or the code you are testing.
-> - Modules which are internal to your application can also be mocked. In the directory where the module is located, create a `__mocks__` directory, then create the mock module in that directory with the same name. This will automatically mock the module when `require()`d by the code being tested, but it is _not_ automatically mocked when `require()`d by the test code itself. To do that, you will need to explicitly ask Jest for the mock using [`jest.mock()`](https://jestjs.io/docs/en/jest-object#jestmockmodulename-factory-options) instead.
+> - Modules which are internal to your application can also be mocked. In the directory where the module is located, create a `__mocks__` directory, then create the mock module with the same name in that directory. This will automatically mock the module when `require()`d by the code being tested, but it is _not_ automatically mocked when `require()`d by the test code itself. To do that, you will need to explicitly ask Jest for the mock using [`jest.mock()`](https://jestjs.io/docs/en/jest-object#jestmockmodulename-factory-options) instead.
 > - Core Node modules such as `fs` are not mocked by default. If your test code wants a mock of a core Node module, you can obtain it with `jest.mock()`.
 > - If your test code has a mocked module and needs to get at the real one, it can do so with [`jest.requireActual()`](https://jestjs.io/docs/en/jest-object#jestrequireactualmodulename).
 
@@ -619,18 +633,7 @@ Jest comes with built-in coverage reporting. Let's turn that on in our `test` sc
 }
 ```
 
-Run the tests again and you'll see a coverage report after the test results, which should look something like this:
-
-```
-----------|---------|----------|---------|---------|-------------------
-File      | % Stmts | % Branch | % Funcs | % Lines | Uncovered Line #s
-----------|---------|----------|---------|---------|-------------------
-All files |   94.87 |    71.43 |     100 |   94.44 |
- index.js |   94.87 |    71.43 |     100 |   94.44 | 31,98
-----------|---------|----------|---------|---------|-------------------
-```
-
-This command will also export the coverage report into the `/coverage` directory in a variety of formats, including a super-nice HTML report in `/coverage/lcov-report`. (The HTML report will even show things that the report in the terminal misses, like default argument values not being covered.)
+Run the tests again and you'll see a coverage report after the test results. This command will also export the coverage report into the `/coverage` directory in a variety of formats, including a super-nice HTML report in `/coverage/lcov-report`. (The HTML report will even show things that the report in the terminal misses, like default argument values not being covered.)
 
 ## I Want More!
 There is far more to Jest than can be covered in one training session. The [official Jest documentation](https://jestjs.io/docs/en/getting-started) contains everything you'd ever want to know about Jest. Some topics that might be of particular interest include:

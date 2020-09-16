@@ -15,24 +15,28 @@ module.exports.isPalindrome = str => [ ...str ].reverse().join('') === str;
  * otherwise, it will be `undefined`.
  * @param {string} name the name to use in the greeting
  * @param {function} callback
- * @param {number} [delayMs] asynchronously delays the invocation of the given
- * callback function by the indicated number of milliseconds, if specified
  * @throws {TypeError} if the callback argument is not a function
  */
-module.exports.greet = (name, callback, delayMs) => {
-  if (typeof callback !== 'function') {
-    throw new TypeError('The callback argument must be a function');
-  }
-
+module.exports.greet = (name, callback) => {
   const result = buildGreeting(name);
-  const fn = () => callback(result.error, result.greeting);
-
-  if (typeof delayMs === 'number') {
-    setTimeout(fn, delayMs);
-  } else {
-    fn();
-  }
+  callback(result.error, result.greeting);
 }
+
+/**
+ * Asynchronously invokes the callback function, passing in a greeting string
+ * using the given name. The first argument of the callback will be an error if
+ * the given name is not a string or is blank; otherwise, it will be
+ * `undefined`. The second argument to the callback will be the greeting string
+ * if there was no error; otherwise, it will be `undefined`.
+ * @param {string} name the name to use in the greeting
+ * @param {function} callback
+ * @param {number} delayMs delay in milliseconds before the callback is invoked
+ * @throws {TypeError} if the callback argument is not a function
+ */
+module.exports.greetTimeout = (name, callback, delayMs) => setTimeout(() => {
+  const result = buildGreeting(name);
+  callback(result.error, result.greeting);
+}, delayMs);
 
 /**
  * Same as `greet()`, but promisified.
@@ -43,8 +47,9 @@ module.exports.greet = (name, callback, delayMs) => {
  * acceptable, or rejects if the name is not a string or is blank
  */
 module.exports.greetPromise = (name, delayMs = 0) => new Promise((resolve, reject) => {
-  const result = buildGreeting(name);
   setTimeout(() => {
+    const result = buildGreeting(name);
+
     if (result.error) {
       reject(result.error);
     } else {
